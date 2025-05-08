@@ -1,0 +1,7 @@
+.vscode
+.vs
+.angular
+node_modules
+obj
+bin
+*.csproj.user

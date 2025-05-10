@@ -1,0 +1,21 @@
+<mat-card class="list-item" cdkDrag>
+  <div class="task-details">
+    <div class="title">
+      <p>{{ task.description }}</p>
+      <i>{{ getTaskTypeName(task.type) }}</i>
+    </div>
+    <span class="stars">{{ getStars(task.difficultyScale) }}</span>
+  </div>
+  <div class="task-description">
+    @if(isDeploymentTask(task)) {
+      <p>{{ task.deploymentScope }}</p>
+      <p>{{ task.date | date: "dd.MM.yyyy" }}</p>
+    } @else if (isMaintenanceTask(task)) {
+      <p><strong>Services:</strong> {{ task.services }}</p>
+      <p><strong>Servers:</strong> {{ task.servers }}</p>
+      <p>{{ task.date | date: "dd.MM.yyyy" }}</p>
+    } @else if (isImplementationTask(task)) {
+      <p>{{ task.taskContent }}</p>
+    }
+  </div>
+</mat-card>

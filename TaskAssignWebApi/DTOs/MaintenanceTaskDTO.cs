@@ -2,7 +2,7 @@
 
 namespace TaskAssignWebApi.DTOs
 {
-	public class MaintenanceTaskDTO
+	public class MaintenanceTaskDTO : CommonTaskDTO
 	{
 		[Required(ErrorMessage = "Lista serwisów jest wymagana.")]
 		[StringLength(400, ErrorMessage = "Lista serwisów nie może przekraczać 400 znaków.")]

@@ -1,0 +1,34 @@
+@use '../../../variables.scss' as variables;
+
+.task-list-container {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .select-user {
+    min-width: 20rem;
+  }
+
+  .task-container {
+    width: 80%;
+    display: flex;
+    gap: 2rem;
+
+    .task-box {
+      flex: 1;
+      min-height: 400px;
+      padding: 1rem;
+
+      .card-title {
+        padding: 1rem;
+        text-align: center;
+        color: variables.$primary-color;
+      }
+    }
+  }
+
+  .submit-container {
+    margin-top: 2rem;
+  }
+}

@@ -1,0 +1,37 @@
+<div class="task-list-container">
+  <mat-form-field class="select-user">
+    <mat-label>User</mat-label>
+    <mat-select [(value)]="selectedUser" (selectionChange)="userChanged()">
+      @for(user of users; track user.id) {
+        <mat-option [value]="user">{{ user.name }} ({{ getUserTypeName(user.type) }})</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  @if(selectedUser) {
+    <div class="task-container">
+      <mat-card class="task-box">
+        <mat-card-title class="card-title">Assigned tasks</mat-card-title>
+        <div cdkDropList #assignedList="cdkDropList" class="task-list" [cdkDropListData]="assignedTasks" [cdkDropListConnectedTo]="[availableList]" (cdkDropListDropped)="drop($event)">
+          <mat-list>
+            @for(task of assignedTasks; track task.id) {
+              <app-list-item [task]="task"></app-list-item>
+            }
+          </mat-list>
+        </div>
+      </mat-card>
+      <mat-card class="task-box">
+        <mat-card-title class="card-title">Available tasks</mat-card-title>
+        <div cdkDropList #availableList="cdkDropList" class="task-list" [cdkDropListData]="availableTasks" [cdkDropListConnectedTo]="[assignedList]" (cdkDropListDropped)="drop($event)">
+          <mat-list>
+            @for(task of availableTasks; track task.id) {
+              <app-list-item [task]="task"></app-list-item>
+            }
+          </mat-list>
+        </div>
+      </mat-card>
+    </div>
+  }
+  <div class="submit-container">
+    <button mat-raised-button (click)="submitTasks()">Submit</button>
+  </div>
+</div>

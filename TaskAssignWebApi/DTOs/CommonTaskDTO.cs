@@ -20,5 +20,9 @@ namespace TaskAssignWebApi.DTOs
 
 		[Required(ErrorMessage = "Status zadania jest wymagany.")]
 		public TaskStatus Status { get; set; }
+
+		public int? UserId { get; set; }
+
+		public UserDTO User { get; set; }
 	}
 }

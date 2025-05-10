@@ -4,14 +4,15 @@ using TaskStatus = TaskAssignWebApi.Enums.TaskStatus;
 
 namespace TaskAssignWebApi.Domain.Models.Abstract
 {
-    public abstract class CommonTask
+	public abstract class CommonTask
     {
-        public int Id { get; set; }
+	    [Key]
+		public int Id { get; set; }
 
         [Range(1, 5, ErrorMessage = "Skala trudności musi być w przedziale od 1 do 5.")]
 		public int DifficultyScale { get; set; }
 
-		[MaxLength(400)]
+		[MaxLength(400, ErrorMessage = "Opis nie może przekraczać 400 znaków.")]
 		public string Description { get; set; }
 
 		[EnumDataType(typeof(TaskType), ErrorMessage = "Nieznany typ zadania.")]

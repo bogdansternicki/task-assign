@@ -5,8 +5,8 @@ namespace TaskAssignWebApi.Domain.Models
 {
     public class DeploymentTask : CommonTask
     {
-	    [MaxLength(400)]
-		public string DeploymentScope;
+	    [MaxLength(400, ErrorMessage = "Zakres wdrożenia nie może przekraczać 400 znaków.")]
+		public string DeploymentScope { get; set; }
 
 	    public DateTime Date { get; set; }
 	}

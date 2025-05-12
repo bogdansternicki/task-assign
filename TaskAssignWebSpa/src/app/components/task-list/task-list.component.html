@@ -11,27 +11,33 @@
     <div class="task-container">
       <mat-card class="task-box">
         <mat-card-title class="card-title">Assigned tasks</mat-card-title>
-        <div cdkDropList #assignedList="cdkDropList" class="task-list" [cdkDropListData]="assignedTasks" [cdkDropListConnectedTo]="[availableList]" (cdkDropListDropped)="drop($event)">
+        <i class="info">Drag and drop tasks to assign or unassign them.</i>
+        <div class="task-list" cdkDropList #assignedList="cdkDropList" [cdkDropListData]="assignedTasks" [cdkDropListConnectedTo]="[availableList]" (cdkDropListDropped)="drop($event, true)">
           <mat-list>
             @for(task of assignedTasks; track task.id) {
-              <app-list-item [task]="task"></app-list-item>
+              <app-list-item cdkDrag [cdkDragData]="task" [task]="task"></app-list-item>
             }
           </mat-list>
+          <mat-paginator class="pagination" [pageIndex]="currentAssignedTaskPageIndex" [length]="assignedTaskCount()" [pageSize]="10" [hidePageSize]="true" (page)="onAssignedListPageChange($event)"></mat-paginator>
         </div>
       </mat-card>
       <mat-card class="task-box">
         <mat-card-title class="card-title">Available tasks</mat-card-title>
-        <div cdkDropList #availableList="cdkDropList" class="task-list" [cdkDropListData]="availableTasks" [cdkDropListConnectedTo]="[assignedList]" (cdkDropListDropped)="drop($event)">
+        <i class="info">Drag and drop tasks to assign or unassign them.</i>
+        <div class="task-list" cdkDropList #availableList="cdkDropList" [cdkDropListData]="availableTasks" [cdkDropListConnectedTo]="[assignedList]" (cdkDropListDropped)="drop($event, false)">
           <mat-list>
             @for(task of availableTasks; track task.id) {
-              <app-list-item [task]="task"></app-list-item>
+              <app-list-item cdkDrag [cdkDragData]="task" [task]="task"></app-list-item>
             }
           </mat-list>
+          <mat-paginator class="pagination" [pageIndex]="currentAvailableTaskPageIndex" [length]="availableTaskCount()" [pageSize]="10" [hidePageSize]="true" (page)="onAvailableListPageChange($event)"></mat-paginator>
         </div>
       </mat-card>
     </div>
   }
-  <div class="submit-container">
-    <button mat-raised-button (click)="submitTasks()">Submit</button>
-  </div>
+  @if (selectedUser) {
+    <div class="submit-container">
+      <button mat-raised-button (click)="submitTasks()">Submit</button>
+    </div>
+  }
 </div>

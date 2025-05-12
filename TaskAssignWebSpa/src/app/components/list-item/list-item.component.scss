@@ -3,11 +3,13 @@
 .list-item {
   height: fit-content !important;
   display: flex;
+  gap: 0.5rem;
   flex-direction: column;
-  margin: 1rem 0;
-  padding: 1rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
+  cursor: pointer;
 
   .task-details {
     display: flex;
@@ -15,26 +17,25 @@
     justify-content: space-between;
 
     .title {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
 
       p {
-        margin: 0;
+        color: variables.$secondary-color;
       }
 
       i {
         font-size: 1rem;
-        color: #606060;
+        color: variables.$grey-color;
       }
     }
 
     .stars {
       padding-left: 0.5rem;
       font-size: 1.2rem;
-      color: variables.$secondary-color;
     }
   }
 
-  .task-description {
+  .additional-info {
     display: flex;
     align-items: center;
     justify-content: space-between;

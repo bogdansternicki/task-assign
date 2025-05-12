@@ -40,12 +40,12 @@ export class TaskListComponent implements OnInit {
   readonly assignedTasks = computed(() => [
     ...this.tasksService.assignedTasks().filter(task => !this.tasksService.movedTasks().availableTasks.some(availableTask => availableTask.id === task.id)),
     ...this.tasksService.movedTasks().assignTasks
-  ]);
+  ].sort((a: CommonTask, b: CommonTask) => b.difficultyScale - a.difficultyScale));
 
   readonly availableTasks = computed(() => [
     ...this.tasksService.availableTasks().filter(task => !this.tasksService.movedTasks().assignTasks.some(assignTask => assignTask.id === task.id)),
     ...this.tasksService.movedTasks().availableTasks
-  ]);
+  ].sort((a: CommonTask, b: CommonTask) => b.difficultyScale - a.difficultyScale));
 
   users = computed(() => this.usersService.users());
   selectedUser: User | null = null;
@@ -95,6 +95,13 @@ export class TaskListComponent implements OnInit {
       this.isDirty = true;
       const movedItem = event.item.data;
 
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex,
+      );
+
       this.tasksService.movedTasks.update(value => {
         if (assign) {
           return {
@@ -108,13 +115,6 @@ export class TaskListComponent implements OnInit {
           };
         }
       });
-
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
     }
   }
 

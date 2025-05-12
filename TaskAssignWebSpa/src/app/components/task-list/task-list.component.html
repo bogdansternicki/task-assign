@@ -1,4 +1,7 @@
 <div class="task-list-container">
+  @if (!this.selectedUser) {
+    <h3 class="title">Please, select a user to start.</h3>
+  }
   <mat-form-field class="select-user">
     <mat-label>User</mat-label>
     <mat-select [(value)]="selectedUser" (selectionChange)="userChanged()">

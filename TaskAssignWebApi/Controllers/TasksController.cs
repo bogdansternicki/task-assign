@@ -97,11 +97,11 @@ namespace TaskAssignWebApi.Controllers
 			if (userTasks.Count < MIN_TASK_COUNT || MAX_TASK_COUNT < userTasks.Count)
 				return BadRequest("Too many or too little tasks assigned. Assign at least 5 tasks and not more than 11 tasks.");
 
-			var difficultTaskPercentage = (double)userTasks.Where(task => DIFFICULT_TASKS.Contains(task.DifficultyScale)).Count() / allTasks.Where(task => DIFFICULT_TASKS.Contains(task.DifficultyScale)).Count() * 100;
+			var difficultTaskPercentage = (double)userTasks.Where(task => DIFFICULT_TASKS.Contains(task.DifficultyScale)).Count() / userTasks.Count() * 100;
 			if (difficultTaskPercentage < MIN_DIFFICULT_TASK_PERCENTAGE || difficultTaskPercentage > MAX_DIFFICULT_TASK_PERCENTAGE)
 				return BadRequest("Difficult tasks must fall within the range of 10% to 30%.");
 
-			var simpleTaskPercentage = (double)userTasks.Where(task => SIMPLE_TASKS.Contains(task.DifficultyScale)).Count() / allTasks.Where(task => SIMPLE_TASKS.Contains(task.DifficultyScale)).Count() * 100;
+			var simpleTaskPercentage = (double)userTasks.Where(task => SIMPLE_TASKS.Contains(task.DifficultyScale)).Count() / userTasks.Count() * 100;
 			if (simpleTaskPercentage > MAX_SIMPLE_TASK_PERCENTAGE)
 				return BadRequest("The number of simple tasks must not exceed 50%.");
 

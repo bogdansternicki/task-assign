@@ -34,13 +34,18 @@ import { UpdateTasks } from '../../interfaces/update-tasks';
   styleUrl: './task-list.component.scss'
 })
 export class TaskListComponent implements OnInit {
-    // if (this.selectedUser == null && this.users && this.users.length)
-    //   this.selectedUser = this.users[0];
-
   readonly assignedTaskCount = computed(() => this.tasksService.assignedTaskCount());
   readonly availableTaskCount = computed(() => this.tasksService.availableTaskCount());
-  readonly availableTasks = computed(() => [...this.tasksService.availableTasks()]);
-  readonly assignedTasks = computed(() => [...this.tasksService.assignedTasks()]);
+
+  readonly assignedTasks = computed(() => [
+    ...this.tasksService.assignedTasks().filter(task => !this.tasksService.movedTasks().availableTasks.some(availableTask => availableTask.id === task.id)),
+    ...this.tasksService.movedTasks().assignTasks
+  ]);
+
+  readonly availableTasks = computed(() => [
+    ...this.tasksService.availableTasks().filter(task => !this.tasksService.movedTasks().assignTasks.some(assignTask => assignTask.id === task.id)),
+    ...this.tasksService.movedTasks().availableTasks
+  ]);
 
   users = computed(() => this.usersService.users());
   selectedUser: User | null = null;
@@ -93,28 +98,16 @@ export class TaskListComponent implements OnInit {
       this.tasksService.movedTasks.update(value => {
         if (assign) {
           return {
-            // ...value,
-            // assignTasks: [...value.assignTasks, movedItem]
             availableTasks: value.availableTasks.filter(task => task.id !== movedItem.id),
-            assignTasks: [...value.assignTasks, movedItem].filter(assignedTask => !this.tasksService.assignedTasks().some(task => task.id == assignedTask.id))
+            assignTasks: this.tasksService.assignedTasks().some(task => task.id === movedItem.id) ? [...value.assignTasks] : [...value.assignTasks, movedItem]
           };
         } else {
-          // console.log([...value.availableTasks, movedItem]);
-          // console.log(value.availableTasks)
-          // console.log([...value.availableTasks, movedItem].filter(availableTask => !this.availableTasks().some(task => task.id == availableTask.id)));
-
           return {
-            // ...value,
-            // availableTasks: [...value.availableTasks, movedItem]
             assignTasks: value.assignTasks.filter(task => task.id !== movedItem.id),
-            availableTasks: [...value.availableTasks, movedItem].filter(availableTask => !this.tasksService.availableTasks().some(task => task.id == availableTask.id))
+            availableTasks: this.tasksService.availableTasks().some(task => task.id === movedItem.id) ? [...value.availableTasks] : [...value.availableTasks, movedItem]
           };
         }
       });
-
-      // console.log(this.tasksService.availableTasks());
-      // console.log(this.tasksService.movedTasks().assignTasks, this.tasksService.movedTasks().availableTasks);
-
 
       transferArrayItem(
         event.previousContainer.data,

@@ -2,7 +2,7 @@
   <mat-form-field class="select-user">
     <mat-label>User</mat-label>
     <mat-select [(value)]="selectedUser" (selectionChange)="userChanged()">
-      @for(user of users; track user.id) {
+      @for(user of users(); track user.id) {
         <mat-option [value]="user">{{ user.name }} ({{ getUserTypeName(user.type) }})</mat-option>
       }
     </mat-select>
@@ -12,10 +12,10 @@
       <mat-card class="task-box">
         <mat-card-title class="card-title">Assigned tasks</mat-card-title>
         <i class="info">Drag and drop tasks to assign or unassign them.</i>
-        <div class="task-list" cdkDropList #assignedList="cdkDropList" [cdkDropListData]="assignedTasks" [cdkDropListConnectedTo]="[availableList]" (cdkDropListDropped)="drop($event, true)">
+        <div class="task-list" cdkDropList #assignedList="cdkDropList" [cdkDropListData]="assignedTasks()" [cdkDropListConnectedTo]="[availableList]" (cdkDropListDropped)="drop($event, true)">
           <mat-list>
-            @for(task of assignedTasks; track task.id) {
-              <app-list-item cdkDrag [cdkDragData]="task" [task]="task"></app-list-item>
+            @for(task of assignedTasks(); track task.id) {
+              <app-list-item [isDirty]="isTaskDirty(task.id, true)" [task]="task"></app-list-item>
             }
           </mat-list>
           <mat-paginator class="pagination" [pageIndex]="currentAssignedTaskPageIndex" [length]="assignedTaskCount()" [pageSize]="10" [hidePageSize]="true" (page)="onAssignedListPageChange($event)"></mat-paginator>
@@ -24,10 +24,10 @@
       <mat-card class="task-box">
         <mat-card-title class="card-title">Available tasks</mat-card-title>
         <i class="info">Drag and drop tasks to assign or unassign them.</i>
-        <div class="task-list" cdkDropList #availableList="cdkDropList" [cdkDropListData]="availableTasks" [cdkDropListConnectedTo]="[assignedList]" (cdkDropListDropped)="drop($event, false)">
+        <div class="task-list" cdkDropList #availableList="cdkDropList" [cdkDropListData]="availableTasks()" [cdkDropListConnectedTo]="[assignedList]" (cdkDropListDropped)="drop($event, false)">
           <mat-list>
-            @for(task of availableTasks; track task.id) {
-              <app-list-item cdkDrag [cdkDragData]="task" [task]="task"></app-list-item>
+            @for(task of availableTasks(); track task.id) {
+              <app-list-item [isDirty]="isTaskDirty(task.id, false)" [task]="task"></app-list-item>
             }
           </mat-list>
           <mat-paginator class="pagination" [pageIndex]="currentAvailableTaskPageIndex" [length]="availableTaskCount()" [pageSize]="10" [hidePageSize]="true" (page)="onAvailableListPageChange($event)"></mat-paginator>

@@ -17,6 +17,8 @@ export class TasksService {
   assignedTaskCount = signal<number>(0);
   availableTaskCount = signal<number>(0);
 
+  movedTasks = signal<{ assignTasks: CommonTask[], availableTasks: CommonTask[] }>({ assignTasks: [], availableTasks: []});
+
   constructor(
     private http: HttpClient,
     private snackBar: MatSnackBar
@@ -31,7 +33,10 @@ export class TasksService {
       this.snackBar.open('Failed to load available tasks', 'Close', { duration: 3000 });
       return of({ tasks: [], count: 0 } as TaskList);
     })).subscribe((taskList: TaskList) => {
-      this.availableTasks.set(taskList.tasks as CommonTask[]);
+      this.availableTasks.set([
+        ...taskList.tasks.filter(task => !this.movedTasks().assignTasks.some(availableTask => availableTask.id === task.id)),
+        ...this.movedTasks().availableTasks
+      ] as CommonTask[]);
       this.availableTaskCount.set(taskList.count);
     });
   }
@@ -45,7 +50,10 @@ export class TasksService {
       this.snackBar.open('Failed to load assigned tasks', 'Close', { duration: 3000 });
       return of({ tasks: [], count: 0 } as TaskList);
     })).subscribe((taskList: TaskList) => {
-      this.assignedTasks.set(taskList.tasks as CommonTask[]);
+      this.assignedTasks.set([
+        ...taskList.tasks.filter(task => !this.movedTasks().availableTasks.some(assignedTask => assignedTask.id === task.id)),
+        ...this.movedTasks().assignTasks
+      ] as CommonTask[]);
       this.assignedTaskCount.set(taskList.count);
     });
   }

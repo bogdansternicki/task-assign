@@ -1,4 +1,4 @@
-<mat-card class="list-item">
+<mat-card class="list-item" cdkDrag [cdkDragData]="task" [class.dirty-item]="isDirty">
   <div class="task-details">
     <div class="title">
       <p>{{ task.description }}</p>

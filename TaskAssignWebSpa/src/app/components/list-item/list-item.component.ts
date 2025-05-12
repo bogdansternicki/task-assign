@@ -6,18 +6,21 @@ import { MaintenanceTask } from '../../interfaces/maintenance-task';
 import { ImplementationTask } from '../../interfaces/implementation-task';
 import { MatCardModule } from '@angular/material/card';
 import { DatePipe } from '@angular/common';
+import { CdkDrag } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-list-item',
   imports: [
     MatCardModule,
-    DatePipe
+    DatePipe,
+    CdkDrag
   ],
   templateUrl: './list-item.component.html',
   styleUrl: './list-item.component.scss'
 })
 export class ListItemComponent {
   @Input() task!: CommonTask;
+  @Input() isDirty: boolean = false;
 
   getTaskTypeName = (type: TaskType): string => TaskType[type];
 

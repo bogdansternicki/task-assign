@@ -1,4 +1,4 @@
-import { Component, computed, effect, HostListener, OnInit, signal } from '@angular/core';
+import { Component, computed, HostListener, OnInit } from '@angular/core';
 import { User } from '../../interfaces/user';
 import { CommonTask } from '../../interfaces/common-task';
 import { UsersService } from '../../services/users-service.service';
@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
-import { CdkDragDrop, CdkDropList, DragDropModule, transferArrayItem, moveItemInArray, CdkDrag } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDropList, DragDropModule, transferArrayItem, moveItemInArray } from '@angular/cdk/drag-drop';
 import { UserType } from '../../enums/user-type';
 import { UnsavedChangesGuard } from '../../guards/unsaved-changes.guard';
 import { ListItemComponent } from '../list-item/list-item.component';
@@ -28,47 +28,23 @@ import { UpdateTasks } from '../../interfaces/update-tasks';
     MatSnackBarModule,
     MatPaginatorModule,
     CdkDropList,
-    CdkDrag,
     ListItemComponent
   ],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss'
 })
 export class TaskListComponent implements OnInit {
-  private usersEffect = effect(() => this.users = this.usersService.users());
-
-  private availableTasksEffect = effect(() => {
-    this.availableTasks = this.tasksService.availableTasks();
-
-    this.updateTasks().assignTaskIds.forEach(id => {
-      this.availableTasks = this.availableTasks.filter(task => task.id !== id);
-    });
-  });
-
-  private assignedTasksEffect = effect(() => {
-    this.assignedTasks = this.tasksService.assignedTasks();
-
-    this.updateTasks().unAssignTaskIds.forEach(id => {
-      this.assignedTasks = this.assignedTasks.filter(task => task.id !== id);
-    });
-  });
+    // if (this.selectedUser == null && this.users && this.users.length)
+    //   this.selectedUser = this.users[0];
 
   readonly assignedTaskCount = computed(() => this.tasksService.assignedTaskCount());
   readonly availableTaskCount = computed(() => this.tasksService.availableTaskCount());
+  readonly availableTasks = computed(() => [...this.tasksService.availableTasks()]);
+  readonly assignedTasks = computed(() => [...this.tasksService.assignedTasks()]);
 
-  readonly updateTasks = signal<UpdateTasks>({
-    userId: 0,
-    assignTaskIds: [],
-    unAssignTaskIds: []
-  });
-
-  users: User[] = [];
+  users = computed(() => this.usersService.users());
   selectedUser: User | null = null;
-
-  assignedTasks: CommonTask[] = [];
   currentAssignedTaskPageIndex: number = 0;
-
-  availableTasks: CommonTask[] = [];
   currentAvailableTaskPageIndex: number = 0;
 
   isDirty: boolean = false;
@@ -88,7 +64,7 @@ export class TaskListComponent implements OnInit {
     if (await this.unsavedChangesGuard.canDeactivate(this)) {
       this.currentAssignedTaskPageIndex = 0;
       this.currentAvailableTaskPageIndex = 0;
-      this.updateTasks.set({ userId: this.selectedUser?.id ?? 0, assignTaskIds: [], unAssignTaskIds: [] })
+      this.tasksService.movedTasks.set({ assignTasks: [], availableTasks: [] });
 
       this.tasksService.loadAssignedTasks(this.currentAssignedTaskPageIndex, this.selectedUser?.id ?? 0);
       this.tasksService.loadAvailableTasks(this.currentAvailableTaskPageIndex, this.selectedUser?.id ?? 0);
@@ -112,20 +88,33 @@ export class TaskListComponent implements OnInit {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
       this.isDirty = true;
+      const movedItem = event.item.data;
 
-      if (assign) {
-        this.updateTasks.update(value => ({
-          ...value,
-          unAssignTaskIds: value.unAssignTaskIds.filter(id => id !== event.item.data.id),
-          assignTaskIds: [...value.assignTaskIds, event.item.data.id]
-        }));
-      } else {
-        this.updateTasks.update(value => ({
-          ...value,
-          assignTaskIds: value.assignTaskIds.filter(id => id !== event.item.data.id),
-          unAssignTaskIds: [...value.unAssignTaskIds, event.item.data.id]
-        }));
-      }
+      this.tasksService.movedTasks.update(value => {
+        if (assign) {
+          return {
+            // ...value,
+            // assignTasks: [...value.assignTasks, movedItem]
+            availableTasks: value.availableTasks.filter(task => task.id !== movedItem.id),
+            assignTasks: [...value.assignTasks, movedItem].filter(assignedTask => !this.tasksService.assignedTasks().some(task => task.id == assignedTask.id))
+          };
+        } else {
+          // console.log([...value.availableTasks, movedItem]);
+          // console.log(value.availableTasks)
+          // console.log([...value.availableTasks, movedItem].filter(availableTask => !this.availableTasks().some(task => task.id == availableTask.id)));
+
+          return {
+            // ...value,
+            // availableTasks: [...value.availableTasks, movedItem]
+            assignTasks: value.assignTasks.filter(task => task.id !== movedItem.id),
+            availableTasks: [...value.availableTasks, movedItem].filter(availableTask => !this.tasksService.availableTasks().some(task => task.id == availableTask.id))
+          };
+        }
+      });
+
+      // console.log(this.tasksService.availableTasks());
+      // console.log(this.tasksService.movedTasks().assignTasks, this.tasksService.movedTasks().availableTasks);
+
 
       transferArrayItem(
         event.previousContainer.data,
@@ -144,9 +133,16 @@ export class TaskListComponent implements OnInit {
       $event.preventDefault();
   }
 
+  isTaskDirty = (id: number, assign: boolean): boolean => (assign ? this.tasksService.movedTasks().assignTasks : this.tasksService.movedTasks().availableTasks).map(task => task.id).includes(id);
+
   submitTasks(): void {
-    this.tasksService.updateAssignedUsers(this.updateTasks()).subscribe({
+    this.tasksService.updateAssignedUsers({
+      userId: this.selectedUser?.id ?? 0,
+      assignTaskIds: this.tasksService.movedTasks().assignTasks.map(task => task.id),
+      unAssignTaskIds: this.tasksService.movedTasks().availableTasks.map(task => task.id)
+    } as UpdateTasks).subscribe({
       next: () => {
+        this.tasksService.movedTasks.update(value => ({ ...value, assignTasks: [], availableTasks: [] }));
         this.tasksService.loadAssignedTasks(this.currentAssignedTaskPageIndex, this.selectedUser?.id ?? 0);
         this.tasksService.loadAvailableTasks(this.currentAvailableTaskPageIndex, this.selectedUser?.id ?? 0);
         this.isDirty = false;
